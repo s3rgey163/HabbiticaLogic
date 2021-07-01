@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static HabbiticcaLogic.Entity.UserInfoDb.UserPoints;
 
 namespace HabbiticcaLogic.Entity
 {
@@ -18,12 +19,14 @@ namespace HabbiticcaLogic.Entity
             _dBConnection = dBConnection;
             Days = new DaysGone(_dBConnection);
             LoginDay = new LastLoginDay(_dBConnection);
-            Points = new UserPoints(dBConnection);
+            Points = new UserPoints(_dBConnection);
+            TotalCompleteTasks = new TotalCompleteCount(_dBConnection);
         }
 
         public DaysGone Days { get; set; }
         public LastLoginDay LoginDay { get; set; }
         public UserPoints Points { get; set; }
+        public TotalCompleteCount TotalCompleteTasks { get; set; }
         /// <summary>
         /// Занести информацию о пользователе в базу данных
         /// </summary>
