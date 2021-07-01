@@ -54,9 +54,9 @@ namespace HabbiticcaLogic.Entity
         /// <param name="userLogin">Уникальный идентификатор пользователя</param>
         /// <param name="completeAchievements">Массив, в который необходимо сохранить выполненые достижения</param>
         /// <returns>true - запрос выполнен успешно. false - ошибка в запросе</returns>
-        public bool Get(string userLogin, ref string[] completeAchievements)
+        public bool GetReceived(string userLogin, ref Dictionary<string, string> notCompleteAchievements)
         {
-            completeAchievements = null;
+            notCompleteAchievements = new Dictionary<string, string>();
             bool res = true;
             MySqlConnection connect = _dBConnection.Connection;
             MySqlDataReader reader = null;
@@ -64,27 +64,77 @@ namespace HabbiticcaLogic.Entity
             {
                 connect.Open();
                 string getRowsSql = $"SELECT COUNT(achiev_name) FROM achievement " +
-                    $"WHERE achiev_id IN (SELECT achiev_id FROM achievement_done " +
+                    $"WHERE achiev_id  IN (SELECT achiev_id FROM achievement_done " +
                     $"WHERE user_id IN(SELECT user_id FROM user " +
                     $"WHERE user_login = '{userLogin}'))";
-                string sqlCommandText = $"SELECT achiev_name FROM achievement " +
-                    $"WHERE achiev_id IN (SELECT achiev_id FROM achievement_done " +
+                string sqlCommandText = $"SELECT achiev_name,achiev_desc FROM achievement " +
+                    $"WHERE achiev_id  IN (SELECT achiev_id FROM achievement_done " +
                     $"WHERE user_id IN(SELECT user_id FROM user " +
                     $"WHERE user_login = '{userLogin}'))";
                 string getResultSqlCommand = getRowsSql + ";" + sqlCommandText;
                 MySqlCommand command = new(getResultSqlCommand, connect);
                 reader = command.ExecuteReader();
                 int columns = 0;
-                if(reader.Read())
+                if (reader.Read())
                 {
                     columns = int.Parse(reader[0].ToString());
-                }    
-                completeAchievements = new string[columns];
+                }
                 reader.NextResult();
                 int i = 0;
                 while (reader.Read())
                 {
-                    completeAchievements[i] = reader[0].ToString();
+                    notCompleteAchievements.Add(reader[0].ToString(), reader[1].ToString());
+                    i++;
+                }
+            }
+            catch
+            {
+                res = false;
+            }
+            finally
+            {
+                connect.Close();
+                if (reader != null)
+                    reader.Close();
+            }
+            return res;
+        }
+        /// <summary>
+        /// Получить список невыполненных достижений
+        /// </summary>
+        /// <param name="userLogin">Уникальный идентификатор пользователя</param>
+        /// <param name="notCompleteAchievements">Массив, в который необходимо сохранить выполненые достижения</param>
+        /// <returns>true - запрос выполнен успешно. false - ошибка в запросе</returns>
+        public bool GetNotReceived(string userLogin, ref Dictionary<string,string> notCompleteAchievements)
+        {
+            notCompleteAchievements = new Dictionary<string, string>();
+            bool res = true;
+            MySqlConnection connect = _dBConnection.Connection;
+            MySqlDataReader reader = null;
+            try
+            {
+                connect.Open();
+                string getRowsSql = $"SELECT COUNT(achiev_name) FROM achievement " +
+                    $"WHERE achiev_id NOT IN (SELECT achiev_id FROM achievement_done " +
+                    $"WHERE user_id IN(SELECT user_id FROM user " +
+                    $"WHERE user_login = '{userLogin}'))";
+                string sqlCommandText = $"SELECT achiev_name,achiev_desc FROM achievement " +
+                    $"WHERE achiev_id NOT IN (SELECT achiev_id FROM achievement_done " +
+                    $"WHERE user_id IN(SELECT user_id FROM user " +
+                    $"WHERE user_login = '{userLogin}'))";
+                string getResultSqlCommand = getRowsSql + ";" + sqlCommandText;
+                MySqlCommand command = new(getResultSqlCommand, connect);
+                reader = command.ExecuteReader();
+                int columns = 0;
+                if (reader.Read())
+                {
+                    columns = int.Parse(reader[0].ToString());
+                }
+                reader.NextResult();
+                int i = 0;
+                while (reader.Read())
+                {
+                    notCompleteAchievements.Add(reader[0].ToString(), reader[1].ToString());
                     i++;
                 }
             }

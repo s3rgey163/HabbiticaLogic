@@ -34,16 +34,17 @@ namespace HabbiticcaLogic.Entity
         /// <returns>true - запрос выполнен успешно. false - ошибка в запросе</returns>
         public bool Push(string login, string password, string img)
         {
+            string imgUrl = $"'{img}'";
             if(img.Equals("") || !img.StartsWith("http://") || !img.StartsWith("https://"))
             {
-                img = "NULL";
+                imgUrl = "NULL";
             }
             MySqlConnection connect = _dBConnection.Connection;
             bool result = true;
             try
             {
                 connect.Open();
-                string query = $"INSERT INTO user (user_login, user_password, user_img) VALUES ('{login}','{password}', '{img}')";
+                string query = $"INSERT INTO user (user_login, user_password, user_img) VALUES ('{login}','{password}', {imgUrl})";
                 MySqlCommand command = new MySqlCommand(query, connect);
                 command.ExecuteNonQuery();
             }

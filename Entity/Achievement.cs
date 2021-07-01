@@ -38,13 +38,18 @@ namespace HabbiticcaLogic.Entity
         /// <returns></returns>
         public bool Push(string achievName, string achievDesc, string achievImageUrl)
         {
+            string imgUrl = $"'{achievImageUrl}'";
+            if (achievImageUrl.Equals("") || !achievImageUrl.StartsWith("http://") || !achievImageUrl.StartsWith("https://"))
+            {
+                imgUrl = "NULL";
+            }
             bool res = true;
             MySqlConnection connect = _dBConnection.Connection;
             try
             {
                 connect.Open();
                 string sqlCommandText = $"INSERT INTO achievement (achiev_name, achiev_desc, achiev_img) " +
-                    $"VALUES ('{achievName}','{achievDesc}', '{achievImageUrl}')";
+                    $"VALUES ('{achievName}','{achievDesc}', {imgUrl})";
                 MySqlCommand command = new(sqlCommandText, connect);
                 MySqlDataReader reader = command.ExecuteReader();
             }
