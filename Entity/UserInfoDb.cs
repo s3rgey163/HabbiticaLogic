@@ -228,6 +228,7 @@ namespace HabbiticcaLogic.Entity
                 }
                 finally
                 {
+                    connect.Close();
                     if (reader != null)
                         reader.Close();
                 }
@@ -304,6 +305,7 @@ namespace HabbiticcaLogic.Entity
                 }
                 finally
                 {
+                    connect.Close();
                     if (reader != null)
                         reader.Close();
                 }
@@ -458,6 +460,7 @@ namespace HabbiticcaLogic.Entity
                     }
                     finally
                     {
+                        connect.Close();
                         if (reader != null)
                             reader.Close();
                     }
