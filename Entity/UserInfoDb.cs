@@ -382,6 +382,85 @@ namespace HabbiticcaLogic.Entity
                 }
                 return res;
             }
+            /// <summary>
+            /// Всего выполненных задач
+            /// </summary>
+            public class TotalCompleteCount
+            {
+                private readonly DBConnection _dBConnection;
+                public TotalCompleteCount(DBConnection dBConnection)
+                {
+                    _dBConnection = dBConnection;
+                }
+                /// <summary>
+                /// Обновить дату последней аутентификации пользователя
+                /// </summary>
+                /// <param name="userLogin">Уникальный идентификатор пользователя</param>
+                /// <param name="newCount">Новое количество выполненных задач</param>
+                /// <returns>true - запрос выполнен успешно. false - ошибка в запросе</returns>
+                public bool Update(string userLogin, int newCount)
+                {
+                    MySqlConnection connect = _dBConnection.Connection;
+                    bool result = true;
+                    try
+                    {
+                        connect.Open();
+                        string query = $"UPDATE achievement_info ui JOIN user u" +
+                            $" ON ui.user_id = u.user_id " +
+                            $"SET ui.total_complete_count = {newCount}" +
+                            $" WHERE user_login = '{userLogin}'";
+                        MySqlCommand command = new MySqlCommand(query, connect);
+                        command.ExecuteNonQuery();
+                    }
+                    catch
+                    {
+                        result = false;
+                    }
+                    finally
+                    {
+                        connect.Close();
+                    }
+                    return result;
+                }
+
+                /// <summary>
+                /// Получить дату последней аутентификации пользвателя
+                /// </summary>
+                /// <param name="userLogin">Уникальный идентификатор пользователя</param>
+                /// <param name="totalCompleteTasks"></param>
+                /// <returns>true - запрос выполнен успешно. false - ошибка в запросе</returns>
+                public bool Get(string userLogin, ref int totalCompleteTasks)
+                {
+                    totalCompleteTasks = 0;
+                    bool res = true;
+                    MySqlConnection connect = _dBConnection.Connection;
+                    MySqlDataReader reader = null;
+
+                    try
+                    {
+                        connect.Open();
+                        string sqlCommandText = $"SELECT total_complete_tasks FROM achievement_info ai JOIN user u " +
+                            $"ON ai.user_id = u.user_id " +
+                            $"WHERE user_login = '{userLogin}'";
+                        MySqlCommand command = new(sqlCommandText, connect);
+                        reader = command.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            totalCompleteTasks = int.Parse(reader[0].ToString());
+                        }
+                    }
+                    catch
+                    {
+                        res = false;
+                    }
+                    finally
+                    {
+                        if (reader != null)
+                            reader.Close();
+                    }
+                    return res;
+                }
+            }
         }
     }
 }
