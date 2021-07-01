@@ -54,9 +54,9 @@ namespace HabbiticcaLogic.Entity
         /// <param name="userLogin">Уникальный идентификатор пользователя</param>
         /// <param name="completeAchievements">Массив, в который необходимо сохранить выполненые достижения</param>
         /// <returns>true - запрос выполнен успешно. false - ошибка в запросе</returns>
-        public bool GetReceived(string userLogin, ref Dictionary<string, string> notCompleteAchievements)
+        public bool GetReceived(string userLogin, ref Dictionary<string, string> completeAchievements)
         {
-            notCompleteAchievements = new Dictionary<string, string>();
+            completeAchievements = new Dictionary<string, string>();
             bool res = true;
             MySqlConnection connect = _dBConnection.Connection;
             MySqlDataReader reader = null;
@@ -83,7 +83,7 @@ namespace HabbiticcaLogic.Entity
                 int i = 0;
                 while (reader.Read())
                 {
-                    notCompleteAchievements.Add(reader[0].ToString(), reader[1].ToString());
+                    completeAchievements.Add(reader[0].ToString(), reader[1].ToString());
                     i++;
                 }
             }
