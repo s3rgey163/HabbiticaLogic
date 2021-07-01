@@ -35,7 +35,7 @@ namespace HabbiticcaLogic.Entity
         public bool Push(string login, string password, string img)
         {
             string imgUrl = $"'{img}'";
-            if(img.Equals("") || !img.StartsWith("http://") || !img.StartsWith("https://"))
+            if (img.Equals("") || !img.StartsWith("http://") || !img.StartsWith("https://"))
             {
                 imgUrl = "NULL";
             }
@@ -91,7 +91,7 @@ namespace HabbiticcaLogic.Entity
         /// <param name="userLogin">Уникальный идентификатор пользователя</param>
         /// <param name="userAttributes">Массив для хранения атрибутов пользователя</param>
         /// <returns>true - запрос выполнен успешно. false - ошибка в запросе</returns>
-        public bool Get(string userLogin,ref string[] userAttributes)
+        public bool Get(string userLogin, ref string[] userAttributes)
         {
             userAttributes = null;
             bool res = true;
@@ -124,6 +124,7 @@ namespace HabbiticcaLogic.Entity
             }
             return res;
         }
+        
         /// <summary>
         /// Проверка аутентификации. Содержится ли данный пароль у данного пользователя
         /// </summary>
@@ -371,10 +372,47 @@ namespace HabbiticcaLogic.Entity
                 }
                 return res;
             }
+
+            public bool Exists(string userLogin)
+            {
+                bool res = true;
+                string imgUrl = "";
+                MySqlConnection connect = _dBConnection.Connection;
+                MySqlDataReader reader = null;
+                try
+                {
+                    connect.Open();
+                    string sqlCommandText = $"SELECT user_img FROM user " +
+                        $"WHERE user_login = '{userLogin}'";
+                    MySqlCommand command = new(sqlCommandText, connect);
+                    reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        imgUrl = reader[0].ToString();
+                    }
+                    if(imgUrl.Equals(""))
+                    {
+                        res = false;
+                    }
+                }
+                catch
+                {
+                    res = false;
+                }
+                finally
+                {
+                    if (reader != null)
+                    {
+                        reader.Close();
+                    }
+                    connect.Close();
+                }
+                return res;
+            }
         }
 
     }
 
-    
+
 }
 
